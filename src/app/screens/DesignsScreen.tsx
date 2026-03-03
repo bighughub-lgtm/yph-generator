@@ -1,10 +1,12 @@
+// src/app/screens/DesignsScreen.tsx
 import { useNavigate } from 'react-router';
 import { useState, useRef } from 'react';
 import { useWizard } from '../context/WizardContext';
 import { StepIndicator } from '../components/StepIndicator';
-import { ImagePlus, Trash2, AlertCircle } from 'lucide-react';
+import { ImagePlus, Trash2, AlertCircle, Loader2 } from 'lucide-react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 const steps = [
   { id: 'product', label: 'Product', path: '/product' },
@@ -17,7 +19,8 @@ const steps = [
 
 interface DesignSlot {
   id: number;
-  image: string | null;
+  preview: string | null; // base64 preview (UI ātrumam)
+  url: string | null;     // Cloudinary secure_url (īstā vērtība renderim)
 }
 
 interface DragItem {
@@ -36,19 +39,20 @@ function DesignSlotComponent({
 }: {
   slot: DesignSlot;
   index: number;
-  onUpload: (index: number, image: string) => void;
+  onUpload: (index: number, preview: string, url: string) => void;
   onRemove: (index: number) => void;
   moveSlot: (dragIndex: number, hoverIndex: number) => void;
-  onMultipleUpload: (startIndex: number, images: string[]) => void;
+  onMultipleUpload: (startIndex: number, items: { preview: string; url: string }[]) => void;
   onInvalidSize: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const [{ isDragging }, drag] = useDrag({
     type: 'design',
     item: { id: slot.id, index },
-    canDrag: !!slot.image,
+    canDrag: !!slot.preview,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -73,22 +77,27 @@ function DesignSlotComponent({
 
   const validateImageSize = (imageData: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      // Check if we're on mobile (screen width < 768px)
       const isMobile = window.innerWidth < 768;
-      
-      // If mobile, skip validation
+
+      // Mobile: skip validation
       if (isMobile) {
         resolve(true);
         return;
       }
-      
-      // Desktop: validate 750x1590
+
       const img = new Image();
-      img.onload = () => {
-        resolve(img.width === 750 && img.height === 1590);
-      };
+      img.onload = () => resolve(img.width === 750 && img.height === 1590);
       img.onerror = () => resolve(false);
       img.src = imageData;
+    });
+  };
+
+  const readPreview = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target?.result as string);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
     });
   };
 
@@ -97,61 +106,49 @@ function DesignSlotComponent({
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
-    
-    if (fileArray.length === 1) {
-      // Single file - use original behavior
-      const file = fileArray[0];
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const imageData = event.target?.result as string;
-        const isValid = await validateImageSize(imageData);
-        
-        if (isValid) {
-          onUpload(index, imageData);
-        } else {
+
+    try {
+      setUploading(true);
+
+      if (fileArray.length === 1) {
+        const file = fileArray[0];
+
+        const preview = await readPreview(file);
+        const isValid = await validateImageSize(preview);
+
+        if (!isValid) {
           onInvalidSize();
+          return;
         }
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // Multiple files - distribute across slots
-      const images: string[] = [];
-      let loadedCount = 0;
-      let hasInvalidSize = false;
-      
-      fileArray.slice(0, 5).forEach((file, fileIndex) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageData = event.target?.result as string;
-          const isValid = await validateImageSize(imageData);
-          
-          if (isValid) {
-            images[fileIndex] = imageData;
-          } else {
+
+        const url = await uploadToCloudinary(file);
+        onUpload(index, preview, url);
+      } else {
+        const items: { preview: string; url: string }[] = [];
+        let hasInvalidSize = false;
+
+        for (const file of fileArray.slice(0, 5)) {
+          const preview = await readPreview(file);
+          const isValid = await validateImageSize(preview);
+
+          if (!isValid) {
             hasInvalidSize = true;
+            continue;
           }
-          
-          loadedCount++;
-          
-          // Once all files are loaded, update slots
-          if (loadedCount === Math.min(fileArray.length, 5)) {
-            if (hasInvalidSize) {
-              onInvalidSize();
-            }
-            // Only upload valid images
-            const validImages = images.filter(img => img);
-            if (validImages.length > 0) {
-              onMultipleUpload(index, validImages);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    
-    // Reset the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+
+          const url = await uploadToCloudinary(file);
+          items.push({ preview, url });
+        }
+
+        if (hasInvalidSize) onInvalidSize();
+        if (items.length > 0) onMultipleUpload(index, items);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -165,15 +162,28 @@ function DesignSlotComponent({
         className="hidden"
         onChange={handleFileSelect}
       />
-      
-      {slot.image ? (
+
+      {slot.preview ? (
         <div className={`relative group ${isOver ? 'ring-2 ring-[#22c55e]' : ''}`}>
-          <div className="aspect-[9/16] bg-white border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
-            <img src={slot.image} alt={`Design ${slot.id}`} className="w-full h-full object-cover" />
+          <div className="aspect-[9/16] bg-white border-2 border-dashed border-gray-300 rounded-lg overflow-hidden relative">
+            <img
+              src={slot.preview}
+              alt={`Design ${slot.id}`}
+              className="w-full h-full object-cover"
+            />
+
+            {uploading && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            )}
           </div>
+
           <button
             onClick={() => onRemove(index)}
             className="absolute -top-2 -right-2 bg-white rounded-full p-1.5 shadow-lg border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            disabled={uploading}
+            title="Remove"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
@@ -181,11 +191,17 @@ function DesignSlotComponent({
       ) : (
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="aspect-[9/16] w-full bg-white border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-gray-400 transition-colors"
+          className="aspect-[9/16] w-full bg-white border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-gray-400 transition-colors relative"
+          disabled={uploading}
         >
-          <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
+          {uploading ? (
+            <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+          ) : (
+            <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
+          )}
         </button>
       )}
+
       <div className="flex justify-center mt-2">
         <div className="w-8 h-8 bg-[#2b2b2b] text-white rounded-full flex items-center justify-center text-sm">
           {index + 1}
@@ -198,27 +214,31 @@ function DesignSlotComponent({
 export function DesignsScreen() {
   const navigate = useNavigate();
   const { state, setDesigns } = useWizard();
+
   const [slots, setSlots] = useState<DesignSlot[]>(
     state.designs.length > 0
-      ? state.designs.map((img, idx) => ({ id: idx + 1, image: img }))
-      : Array.from({ length: 5 }, (_, i) => ({ id: i + 1, image: null }))
+      ? state.designs.map((url, idx) => ({ id: idx + 1, preview: url, url }))
+      : Array.from({ length: 5 }, (_, i) => ({ id: i + 1, preview: null, url: null }))
   );
+
   const [showError, setShowError] = useState(false);
 
-  const handleUpload = (index: number, image: string) => {
+  const handleUpload = (index: number, preview: string, url: string) => {
     const newSlots = [...slots];
-    newSlots[index].image = image;
+    newSlots[index].preview = preview;
+    newSlots[index].url = url;
     setSlots(newSlots);
   };
 
   const handleRemove = (index: number) => {
     const newSlots = [...slots];
-    newSlots[index].image = null;
+    newSlots[index].preview = null;
+    newSlots[index].url = null;
     setSlots(newSlots);
   };
 
   const handleDeleteAll = () => {
-    setSlots(Array.from({ length: 5 }, (_, i) => ({ id: i + 1, image: null })));
+    setSlots(Array.from({ length: 5 }, (_, i) => ({ id: i + 1, preview: null, url: null })));
   };
 
   const moveSlot = (dragIndex: number, hoverIndex: number) => {
@@ -229,12 +249,13 @@ export function DesignsScreen() {
     setSlots(newSlots);
   };
 
-  const handleMultipleUpload = (startIndex: number, images: string[]) => {
+  const handleMultipleUpload = (startIndex: number, items: { preview: string; url: string }[]) => {
     const newSlots = [...slots];
-    images.forEach((img, idx) => {
+    items.forEach((item, idx) => {
       const targetIndex = startIndex + idx;
       if (targetIndex < newSlots.length) {
-        newSlots[targetIndex].image = img;
+        newSlots[targetIndex].preview = item.preview;
+        newSlots[targetIndex].url = item.url;
       }
     });
     setSlots(newSlots);
@@ -246,21 +267,24 @@ export function DesignsScreen() {
   };
 
   const handleContinue = () => {
-    const images = slots.map(slot => slot.image).filter(img => img !== null) as string[];
-    if (images.length > 0) {
-      setDesigns(images);
+    const urls = slots.map((s) => s.url).filter((u) => u !== null) as string[];
+    if (urls.length > 0) {
+      // Wizard state glabā Cloudinary URL (nevis base64)
+      setDesigns(urls);
       navigate('/mockups');
     }
   };
 
-  const hasImages = slots.some(slot => slot.image !== null);
+  const hasImages = slots.some((slot) => slot.url !== null);
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
         <div className="flex-1 flex flex-col px-4 md:px-8 py-6 md:py-16">
-          <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">Upload Designs</h1>
-          
+          <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">
+            Upload Designs
+          </h1>
+
           <StepIndicator steps={steps} currentStep={4} />
 
           <div className="w-full max-w-[1200px] mx-auto mb-6 md:mb-16">
