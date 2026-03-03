@@ -265,7 +265,7 @@ export function DesignsScreenContent() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={handleDeleteAll}
-                className="text-sm text-gray-900 hover:bg-[#2b2b2b] hover:text-white transition-colors px-3 py-1.5 rounded-md"
+                className="text-sm text-gray-900 hover:bg-[#2b2b2b] hover:text-white transition-colors px-3 py-1.5 rounded-full"
               >
                 Delete all
               </button>
