@@ -50,14 +50,14 @@ export function MockupsScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-8 py-16">
-        <h1 className="text-4xl mb-12 text-gray-900 text-center">Choose mockups</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
+        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Choose mockups</h1>
         
         <StepIndicator steps={steps} currentStep={5} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <div className="grid grid-cols-5 gap-4">
+        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
               {mockupTemplates.map((mockup) => (
                 <button
                   key={mockup.id}
@@ -80,14 +80,14 @@ export function MockupsScreen() {
         <div className="w-full max-w-[1200px] mx-auto flex justify-between">
           <button
             onClick={() => navigate('/designs')}
-            className="bg-white border-2 border-gray-300 rounded-full px-8 py-3 text-gray-900 hover:bg-gray-50 transition-colors"
+            className="bg-white border-2 border-gray-300 rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base text-gray-900 hover:bg-gray-50 transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleGenerate}
             disabled={selected.length === 0}
-            className="bg-[#2b2b2b] text-white rounded-full px-8 py-3 hover:bg-[#1f1f1f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#2b2b2b] text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base hover:bg-[#1f1f1f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Generate
           </button>

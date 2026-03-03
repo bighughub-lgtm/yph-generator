@@ -46,24 +46,24 @@ export function ProductScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-8 py-16">
-        <h1 className="text-4xl mb-12 text-gray-900 text-center">Product</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
+        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Product</h1>
         
         <StepIndicator steps={steps} currentStep={0} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <div className="grid grid-cols-4 gap-6">
+        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {products.map((product) => (
                 <div key={product.id} className="relative">
                   <button
                     onClick={() => handleProductSelect(product.id)}
-                    className={`group w-full bg-white border-2 rounded-lg p-6 transition-colors ${
+                    className={`group w-full bg-white border-2 rounded-lg p-4 md:p-6 transition-colors ${
                       selected === product.id ? 'border-[#22c55e] border-[3px]' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm text-gray-900">{product.name}</span>
+                      <span className="text-xs md:text-sm text-gray-900">{product.name}</span>
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
@@ -102,14 +102,14 @@ export function ProductScreen() {
         <div className="w-full max-w-[1200px] mx-auto flex justify-between">
           <button
             onClick={() => navigate('/')}
-            className="bg-white border-2 border-gray-300 rounded-full px-8 py-3 text-gray-900 hover:bg-gray-50 transition-colors"
+            className="bg-white border-2 border-gray-300 rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base text-gray-900 hover:bg-gray-50 transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleContinue}
             disabled={!selected}
-            className="bg-[#2b2b2b] text-white rounded-full px-8 py-3 hover:bg-[#1f1f1f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#2b2b2b] text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base hover:bg-[#1f1f1f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue
           </button>

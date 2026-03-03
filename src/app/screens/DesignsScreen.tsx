@@ -255,12 +255,12 @@ export function DesignsScreenContent() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-8 py-16">
-        <h1 className="text-4xl mb-12 text-gray-900 text-center">Upload Design Files</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
+        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Upload Design Files</h1>
         
         <StepIndicator steps={steps} currentStep={4} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-16">
+        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16">
           {hasAnyDesigns && (
             <div className="flex justify-end mb-4">
               <button
@@ -271,13 +271,13 @@ export function DesignsScreenContent() {
               </button>
             </div>
           )}
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
             <div className={`grid gap-4 ${
               quantity === 1 
                 ? 'grid-cols-1 max-w-[200px] mx-auto' 
                 : quantity === 3 
-                  ? 'grid-cols-3 max-w-[650px] mx-auto' 
-                  : 'grid-cols-5'
+                  ? 'grid-cols-2 sm:grid-cols-3 max-w-[650px] mx-auto' 
+                  : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
             }`}>
               {designs.map((slot, index) => (
                 <DesignSlotComponent
@@ -293,20 +293,20 @@ export function DesignsScreenContent() {
               ))}
             </div>
 
-            <div className="flex items-center justify-center gap-4 mt-6 text-sm text-gray-500">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-6 text-xs sm:text-sm text-gray-500">
               <div className="flex items-center gap-1">
                 <ImagePlus className="w-4 h-4" />
                 <span>Click to upload</span>
               </div>
-              <span>↔</span>
+              <span className="hidden sm:inline">↔</span>
               <span>Drag to swap</span>
-              <span>⊗</span>
+              <span className="hidden sm:inline">⊗</span>
               <span>Hover to delete</span>
             </div>
           </div>
 
           {showError && (
-            <div className="flex items-center gap-2 text-red-600 justify-center mt-4">
+            <div className="flex items-center gap-2 text-red-600 justify-center mt-4 text-sm">
               <AlertCircle className="w-5 h-5" />
               <span>The preferred image size is 750x1590 pixels.</span>
             </div>
@@ -316,13 +316,13 @@ export function DesignsScreenContent() {
         <div className="w-full max-w-[1200px] mx-auto flex justify-between">
           <button
             onClick={() => navigate('/composition')}
-            className="bg-white border-2 border-gray-300 rounded-full px-8 py-3 text-gray-900 hover:bg-gray-50 transition-colors"
+            className="bg-white border-2 border-gray-300 rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base text-gray-900 hover:bg-gray-50 transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleContinue}
-            className="bg-[#2b2b2b] text-white rounded-full px-8 py-3 hover:bg-[#1f1f1f] transition-colors"
+            className="bg-[#2b2b2b] text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base hover:bg-[#1f1f1f] transition-colors"
           >
             Continue
           </button>
