@@ -58,18 +58,18 @@ export function ProductScreen() {
                 <div key={product.id} className="relative">
                   <button
                     onClick={() => handleProductSelect(product.id)}
-                    className={`group w-full bg-white border-2 rounded-xl p-3 md:p-6 transition-colors ${
+                    className={`group w-full bg-white border-2 rounded-xl p-3 md:p-6 transition-colors flex flex-col h-full ${
                       selected === product.id ? 'border-[#22c55e] border-[3px]' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                      <span className="text-xs md:text-sm text-gray-900 font-medium">{product.name}</span>
+                    <div className="flex items-start justify-between mb-3 md:mb-4 gap-2 min-h-[2.5rem] md:min-h-0">
+                      <span className="text-xs md:text-sm text-gray-900 font-medium line-clamp-2 flex-1 text-left">{product.name}</span>
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowInfo(showInfo === product.id ? null : product.id);
                         }}
-                        className="relative cursor-pointer"
+                        className="relative cursor-pointer flex-shrink-0"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
@@ -85,7 +85,7 @@ export function ProductScreen() {
                         </div>
                       </div>
                     </div>
-                    <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-1">
                       <ImageWithFallback
                         src={product.image}
                         alt={product.name}

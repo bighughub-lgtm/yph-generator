@@ -81,7 +81,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
       </div>
 
       {/* Mobile & Tablet vertical version */}
-      <div className="lg:hidden mb-6 px-4">
+      <div className="lg:hidden mb-6">
         <div className="bg-white rounded-2xl p-5 shadow-sm">
           {adjustedSteps.map((step, index) => (
             <div key={step.id}>

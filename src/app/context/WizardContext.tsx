@@ -6,7 +6,7 @@ interface WizardState {
   brand: string | null;
   quantity: number | null;
   composition: string | null;
-  designs: Array<{ id: number; image: string | null }>;
+  designs: string[];
   selectedMockups: string[];
   finishedFiles: string[];
 }
@@ -18,7 +18,7 @@ interface WizardContextType {
   setBrand: (brand: string) => void;
   setQuantity: (quantity: number) => void;
   setComposition: (composition: string) => void;
-  setDesigns: (designs: Array<{ id: number; image: string | null }>) => void;
+  setDesigns: (designs: string[]) => void;
   setSelectedMockups: (mockups: string[]) => void;
   setFinishedFiles: (files: string[]) => void;
   reset: () => void;
@@ -32,13 +32,7 @@ const initialState: WizardState = {
   brand: null,
   quantity: null,
   composition: null,
-  designs: [
-    { id: 1, image: null },
-    { id: 2, image: null },
-    { id: 3, image: null },
-    { id: 4, image: null },
-    { id: 5, image: null },
-  ],
+  designs: [],
   selectedMockups: [],
   finishedFiles: [],
 };
@@ -66,7 +60,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, composition }));
   };
 
-  const setDesigns = (designs: Array<{ id: number; image: string | null }>) => {
+  const setDesigns = (designs: string[]) => {
     setState((prev) => ({ ...prev, designs }));
   };
 
@@ -85,13 +79,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       brand: null,
       quantity: null,
       composition: null,
-      designs: [
-        { id: 1, image: null },
-        { id: 2, image: null },
-        { id: 3, image: null },
-        { id: 4, image: null },
-        { id: 5, image: null },
-      ],
+      designs: [],
       selectedMockups: [],
       finishedFiles: [],
     });
