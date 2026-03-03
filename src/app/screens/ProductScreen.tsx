@@ -46,24 +46,24 @@ export function ProductScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
-        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Product</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-6 md:py-16">
+        <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">Choose Product</h1>
         
         <StepIndicator steps={steps} currentStep={0} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="w-full max-w-[1200px] mx-auto mb-6 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
+          <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {products.map((product) => (
                 <div key={product.id} className="relative">
                   <button
                     onClick={() => handleProductSelect(product.id)}
-                    className={`group w-full bg-white border-2 rounded-lg p-4 md:p-6 transition-colors ${
+                    className={`group w-full bg-white border-2 rounded-xl p-3 md:p-6 transition-colors ${
                       selected === product.id ? 'border-[#22c55e] border-[3px]' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs md:text-sm text-gray-900">{product.name}</span>
+                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                      <span className="text-xs md:text-sm text-gray-900 font-medium">{product.name}</span>
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
@@ -85,7 +85,7 @@ export function ProductScreen() {
                         </div>
                       </div>
                     </div>
-                    <div className="aspect-square bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                    <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
                       <ImageWithFallback
                         src={product.image}
                         alt={product.name}

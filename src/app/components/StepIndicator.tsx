@@ -39,7 +39,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
   return (
     <>
       {/* Desktop horizontal version */}
-      <div className="hidden md:flex items-start justify-center gap-2 md:gap-4 mb-8 md:mb-12 overflow-x-auto px-2">
+      <div className="hidden lg:flex items-start justify-center gap-2 md:gap-4 mb-8 md:mb-12 overflow-x-auto px-2">
         {adjustedSteps.map((step, index) => (
           <div key={step.id} className="flex items-start flex-shrink-0">
             <div className="flex flex-col items-center">
@@ -80,34 +80,36 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
         ))}
       </div>
 
-      {/* Mobile vertical version */}
-      <div className="md:hidden flex justify-center mb-8 px-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm w-full max-w-xs">
+      {/* Mobile & Tablet vertical version */}
+      <div className="lg:hidden mb-6 px-4">
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
           {adjustedSteps.map((step, index) => (
             <div key={step.id}>
               <button
                 onClick={() => handleStepClick(index, step.path)}
                 disabled={index >= currentStep}
-                className="w-full flex items-center gap-3 py-3"
+                className="w-full flex items-center gap-3 py-2"
               >
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border ${
                     index < currentStep
-                      ? 'bg-[#2b2b2b] text-white'
+                      ? 'bg-[#2b2b2b] border-[#2b2b2b] text-white'
                       : index === currentStep
-                      ? 'bg-[#2b2b2b] text-white'
-                      : 'bg-gray-300 text-gray-500'
+                      ? 'bg-[#2b2b2b] border-[#2b2b2b] text-white'
+                      : 'bg-transparent border-gray-300 text-gray-400'
                   } transition-colors`}
                 >
                   {index < currentStep ? (
-                    <Check className="w-5 h-5" />
+                    <Check className="w-3.5 h-3.5" />
+                  ) : index === currentStep ? (
+                    <div className="w-2 h-2 rounded-full bg-current" />
                   ) : (
-                    <div className="w-2.5 h-2.5 rounded-full bg-current" />
+                    <div className="w-2 h-2 rounded-full border border-current" />
                   )}
                 </div>
                 <div className="flex-1 text-left">
                   <div
-                    className={`text-sm font-medium ${
+                    className={`text-sm font-semibold ${
                       index <= currentStep ? 'text-gray-900' : 'text-gray-400'
                     }`}
                   >
@@ -124,7 +126,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               </button>
               {index < steps.length - 1 && (
                 <div
-                  className={`w-1 h-6 ml-5 ${
+                  className={`w-px h-4 ml-3.5 ${
                     index < currentStep ? 'bg-[#2b2b2b]' : 'bg-gray-300'
                   }`}
                 />

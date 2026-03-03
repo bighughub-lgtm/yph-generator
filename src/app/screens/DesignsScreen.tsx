@@ -73,6 +73,16 @@ function DesignSlotComponent({
 
   const validateImageSize = (imageData: string): Promise<boolean> => {
     return new Promise((resolve) => {
+      // Check if we're on mobile (screen width < 768px)
+      const isMobile = window.innerWidth < 768;
+      
+      // If mobile, skip validation
+      if (isMobile) {
+        resolve(true);
+        return;
+      }
+      
+      // Desktop: validate 750x1590
       const img = new Image();
       img.onload = () => {
         resolve(img.width === 750 && img.height === 1590);
@@ -185,123 +195,101 @@ function DesignSlotComponent({
   );
 }
 
-export function DesignsScreenContent() {
+export function DesignsScreen() {
   const navigate = useNavigate();
   const { state, setDesigns } = useWizard();
-  
-  // Get quantity from state, default to 5 if not set
-  const quantity = state.quantity || 5;
-  
-  const [designs, setDesignsState] = useState<DesignSlot[]>(() => {
-    // Initialize designs based on quantity
-    if (state.designs.length > 0 && state.designs.length === quantity) {
-      return state.designs;
-    }
-    return Array.from({ length: quantity }, (_, i) => ({ id: i + 1, image: null }));
-  });
+  const [slots, setSlots] = useState<DesignSlot[]>(
+    state.designs.length > 0
+      ? state.designs.map((img, idx) => ({ id: idx + 1, image: img }))
+      : Array.from({ length: 5 }, (_, i) => ({ id: i + 1, image: null }))
+  );
   const [showError, setShowError] = useState(false);
 
   const handleUpload = (index: number, image: string) => {
-    const newDesigns = [...designs];
-    newDesigns[index].image = image;
-    setDesignsState(newDesigns);
-    setShowError(false);
+    const newSlots = [...slots];
+    newSlots[index].image = image;
+    setSlots(newSlots);
   };
 
   const handleRemove = (index: number) => {
-    const newDesigns = [...designs];
-    newDesigns[index].image = null;
-    setDesignsState(newDesigns);
-  };
-
-  const moveSlot = (dragIndex: number, hoverIndex: number) => {
-    const newDesigns = [...designs];
-    // Swap only the images, not the entire slots (to keep numbers in place)
-    const dragImage = newDesigns[dragIndex].image;
-    newDesigns[dragIndex].image = newDesigns[hoverIndex].image;
-    newDesigns[hoverIndex].image = dragImage;
-    setDesignsState(newDesigns);
-  };
-
-  const handleMultipleUpload = (startIndex: number, images: string[]) => {
-    const newDesigns = [...designs];
-    images.forEach((image, index) => {
-      const targetIndex = startIndex + index;
-      // Only update if the target index is within bounds
-      if (targetIndex < newDesigns.length && newDesigns[targetIndex]) {
-        newDesigns[targetIndex].image = image;
-      }
-    });
-    setDesignsState(newDesigns);
-    setShowError(false);
+    const newSlots = [...slots];
+    newSlots[index].image = null;
+    setSlots(newSlots);
   };
 
   const handleDeleteAll = () => {
-    const newDesigns = designs.map(slot => ({ ...slot, image: null }));
-    setDesignsState(newDesigns);
+    setSlots(Array.from({ length: 5 }, (_, i) => ({ id: i + 1, image: null })));
+  };
+
+  const moveSlot = (dragIndex: number, hoverIndex: number) => {
+    const newSlots = [...slots];
+    const dragSlot = newSlots[dragIndex];
+    newSlots.splice(dragIndex, 1);
+    newSlots.splice(hoverIndex, 0, dragSlot);
+    setSlots(newSlots);
+  };
+
+  const handleMultipleUpload = (startIndex: number, images: string[]) => {
+    const newSlots = [...slots];
+    images.forEach((img, idx) => {
+      const targetIndex = startIndex + idx;
+      if (targetIndex < newSlots.length) {
+        newSlots[targetIndex].image = img;
+      }
+    });
+    setSlots(newSlots);
+  };
+
+  const handleInvalidSize = () => {
+    setShowError(true);
+    setTimeout(() => setShowError(false), 3000);
   };
 
   const handleContinue = () => {
-    const hasDesigns = designs.some((d) => d.image);
-    if (!hasDesigns) {
-      setShowError(true);
-      return;
+    const images = slots.map(slot => slot.image).filter(img => img !== null) as string[];
+    if (images.length > 0) {
+      setDesigns(images);
+      navigate('/mockups');
     }
-    setDesigns(designs);
-    navigate('/mockups');
   };
 
-  const hasAnyDesigns = designs.some((d) => d.image);
+  const hasImages = slots.some(slot => slot.image !== null);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
-        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Upload Design Files</h1>
-        
-        <StepIndicator steps={steps} currentStep={4} />
+    <DndProvider backend={HTML5Backend}>
+      <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
+        <div className="flex-1 flex flex-col px-4 md:px-8 py-6 md:py-16">
+          <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">Upload Designs</h1>
+          
+          <StepIndicator steps={steps} currentStep={4} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16">
-          {hasAnyDesigns && (
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={handleDeleteAll}
-                className="text-sm text-gray-900 hover:bg-[#2b2b2b] hover:text-white transition-colors px-3 py-1.5 rounded-full"
-              >
-                Delete all
-              </button>
-            </div>
-          )}
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
-            <div className={`grid gap-4 ${
-              quantity === 1 
-                ? 'grid-cols-1 max-w-[200px] mx-auto' 
-                : quantity === 3 
-                  ? 'grid-cols-2 sm:grid-cols-3 max-w-[650px] mx-auto' 
-                  : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5'
-            }`}>
-              {designs.map((slot, index) => (
-                <DesignSlotComponent
-                  key={slot.id}
-                  slot={slot}
-                  index={index}
-                  onUpload={handleUpload}
-                  onRemove={handleRemove}
-                  moveSlot={moveSlot}
-                  onMultipleUpload={handleMultipleUpload}
-                  onInvalidSize={() => setShowError(true)}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-6 text-xs sm:text-sm text-gray-500">
-              <div className="flex items-center gap-1">
-                <ImagePlus className="w-4 h-4" />
-                <span>Click to upload</span>
+          <div className="w-full max-w-[1200px] mx-auto mb-6 md:mb-16">
+            <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+                {slots.map((slot, index) => (
+                  <DesignSlotComponent
+                    key={slot.id}
+                    slot={slot}
+                    index={index}
+                    onUpload={handleUpload}
+                    onRemove={handleRemove}
+                    moveSlot={moveSlot}
+                    onMultipleUpload={handleMultipleUpload}
+                    onInvalidSize={handleInvalidSize}
+                  />
+                ))}
               </div>
-              <span className="hidden sm:inline">↔</span>
-              <span>Drag to swap</span>
-              <span className="hidden sm:inline">⊗</span>
-              <span>Hover to delete</span>
+
+              {hasImages && (
+                <div className="mt-6 md:mt-8 flex justify-end">
+                  <button
+                    onClick={handleDeleteAll}
+                    className="bg-white border-2 border-gray-300 text-gray-900 rounded-full px-4 md:px-6 py-2 text-sm md:text-base hover:bg-[#2b2b2b] hover:text-white hover:border-[#2b2b2b] transition-colors"
+                  >
+                    Delete all
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -311,31 +299,23 @@ export function DesignsScreenContent() {
               <span>The preferred image size is 750x1590 pixels.</span>
             </div>
           )}
-        </div>
 
-        <div className="w-full max-w-[1200px] mx-auto flex justify-between">
-          <button
-            onClick={() => navigate('/composition')}
-            className="bg-white border-2 border-gray-300 rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base text-gray-900 hover:bg-gray-50 transition-colors"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleContinue}
-            className="bg-[#2b2b2b] text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base hover:bg-[#1f1f1f] transition-colors"
-          >
-            Continue
-          </button>
+          <div className="w-full max-w-[1200px] mx-auto flex justify-between">
+            <button
+              onClick={() => navigate('/composition')}
+              className="bg-white border-2 border-gray-300 rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleContinue}
+              className="bg-[#2b2b2b] text-white rounded-full px-4 md:px-8 py-2 md:py-3 text-sm md:text-base hover:bg-[#1f1f1f] transition-colors"
+            >
+              Continue
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-export function DesignsScreen() {
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <DesignsScreenContent />
     </DndProvider>
   );
 }

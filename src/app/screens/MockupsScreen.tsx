@@ -50,19 +50,19 @@ export function MockupsScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
-        <h1 className="text-2xl md:text-4xl mb-8 md:mb-12 text-gray-900 text-center">Choose mockups</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-6 md:py-16">
+        <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">Choose Mockups</h1>
         
         <StepIndicator steps={steps} currentStep={5} />
 
-        <div className="w-full max-w-[1200px] mx-auto mb-8 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="w-full max-w-[1200px] mx-auto mb-6 md:mb-16 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
+          <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
               {mockupTemplates.map((mockup) => (
                 <button
                   key={mockup.id}
                   onClick={() => toggleMockup(mockup.id)}
-                  className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 hover:border-gray-400 transition-colors ${
+                  className={`aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 hover:border-gray-400 transition-colors ${
                     selected.includes(mockup.id) ? 'border-[#22c55e]' : 'border-gray-300'
                   }`}
                 >

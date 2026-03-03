@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useWizard } from '../context/WizardContext';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Check } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
 export function FinishedScreen() {
@@ -48,24 +48,29 @@ export function FinishedScreen() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
-      <div className="flex-1 flex flex-col px-4 md:px-8 py-8 md:py-16">
-        <h1 className="text-2xl md:text-4xl mb-8 md:mb-16 text-gray-900 text-center">Finished Files</h1>
+      <div className="flex-1 flex flex-col px-4 md:px-8 py-6 md:py-16">
+        <div className="flex items-center justify-center mb-6 md:mb-12">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-[#22c55e] rounded-full flex items-center justify-center">
+            <Check className="w-6 h-6 md:w-8 md:h-8 text-white" />
+          </div>
+        </div>
+        <h1 className="text-xl md:text-4xl mb-6 md:mb-12 text-gray-900 text-center font-semibold">Mockup Generation Complete!</h1>
 
-        <div className="w-full max-w-[1200px] mx-auto mb-8 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="w-full max-w-[1200px] mx-auto mb-6 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-500">
+          <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
               {mockupFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="aspect-square rounded-lg flex items-center justify-center relative"
+                  className="aspect-square rounded-xl flex items-center justify-center relative"
                   style={{ backgroundColor: file.color }}
                 >
                   {loading && file.id > loadedCount ? (
-                    <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                    <Loader2 className="w-6 h-6 md:w-8 md:h-8 text-gray-400 animate-spin" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       {file.id === 1 && (
-                        <div className="w-full h-full bg-gradient-to-br from-pink-200 to-pink-300 rounded-lg" />
+                        <div className="w-full h-full bg-gradient-to-br from-pink-200 to-pink-300 rounded-xl" />
                       )}
                     </div>
                   )}
